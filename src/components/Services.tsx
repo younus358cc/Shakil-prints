@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Search, Info, HelpCircle } from 'lucide-react';
 import { Service } from '../types';
 import { LucideIcon } from './LucideIcon';
+import { useLanguage } from '../LanguageContext';
 
 interface ServicesProps {
   services: Service[];
@@ -10,6 +11,7 @@ interface ServicesProps {
 }
 
 export default function Services({ services, onNavigate }: ServicesProps) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -27,10 +29,10 @@ export default function Services({ services, onNavigate }: ServicesProps) {
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white font-display">
-          Our Professional Services
+          {t('services.title')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 font-light">
-          From Passport Size Photos to high-quality Flex Banner printing, we deliver perfect digital printouts with premium color fidelity.
+          {t('services.subtitle')}
         </p>
       </div>
 
@@ -48,7 +50,7 @@ export default function Services({ services, onNavigate }: ServicesProps) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {cat}
+              {cat === 'All' ? t('portfolio.filterAll') : cat}
             </button>
           ))}
         </div>
@@ -60,7 +62,7 @@ export default function Services({ services, onNavigate }: ServicesProps) {
           </span>
           <input
             type="text"
-            placeholder="Search printing services..."
+            placeholder={t('services.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500"
@@ -104,14 +106,14 @@ export default function Services({ services, onNavigate }: ServicesProps) {
 
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto">
                 <div>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block">Est. Price</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('services.startPrice')}</span>
                   <span className="text-base font-bold text-slate-900 dark:text-white font-mono">৳{service.startingPrice} <span className="text-[10px] font-normal text-slate-400">up</span></span>
                 </div>
                 <button
                   onClick={() => onNavigate('order', { serviceId: service.id })}
                   className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white font-medium text-xs rounded-xl shadow-sm transition-all hover:scale-102 flex items-center space-x-1"
                 >
-                  <span>Order Now</span>
+                  <span>{t('btn.orderNow')}</span>
                 </button>
               </div>
             </motion.div>

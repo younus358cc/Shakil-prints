@@ -16,8 +16,10 @@ import Contact from './components/Contact';
 import CustomerPortal from './components/CustomerPortal';
 import AdminDashboard from './components/AdminDashboard';
 import { Service, PriceItem, GalleryItem, WebsiteSettings } from './types';
+import { useLanguage } from './LanguageContext';
 
 export default function App() {
+  const { language, setLanguage, t } = useLanguage();
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [prefilledParams, setPrefilledParams] = useState<any>(null);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -129,27 +131,53 @@ export default function App() {
             </div>
             <div>
               <span className="text-sm font-black tracking-tight font-display text-slate-900 dark:text-white block group-hover:text-blue-600 transition-colors">
-                SHAKIL DIGITAL
+                {t('brand.name')}
               </span>
               <span className="text-[10px] text-slate-400 tracking-wider font-mono block">
-                PRINTERS & STUDIO
+                {t('brand.sub')}
               </span>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/40 p-1 rounded-2xl border border-slate-200/20">
-            <button onClick={() => handleNavigate('home')} className={getNavClass('home')}>Home</button>
-            <button onClick={() => handleNavigate('services')} className={getNavClass('services')}>Services</button>
-            <button onClick={() => handleNavigate('prices')} className={getNavClass('prices')}>Price List</button>
-            <button onClick={() => handleNavigate('portfolio')} className={getNavClass('portfolio')}>Portfolio</button>
-            <button onClick={() => handleNavigate('about')} className={getNavClass('about')}>About Us</button>
-            <button onClick={() => handleNavigate('contact')} className={getNavClass('contact')}>Contact</button>
-            <button onClick={() => handleNavigate('portal')} className={getNavClass('portal')}>Track Order</button>
+            <button onClick={() => handleNavigate('home')} className={getNavClass('home')}>{t('nav.home')}</button>
+            <button onClick={() => handleNavigate('services')} className={getNavClass('services')}>{t('nav.services')}</button>
+            <button onClick={() => handleNavigate('prices')} className={getNavClass('prices')}>{t('nav.prices')}</button>
+            <button onClick={() => handleNavigate('portfolio')} className={getNavClass('portfolio')}>{t('nav.portfolio')}</button>
+            <button onClick={() => handleNavigate('about')} className={getNavClass('about')}>{t('nav.about')}</button>
+            <button onClick={() => handleNavigate('contact')} className={getNavClass('contact')}>{t('nav.contact')}</button>
+            <button onClick={() => handleNavigate('portal')} className={getNavClass('portal')}>{t('nav.portal')}</button>
           </nav>
 
-          {/* Top Actions: Dark mode trigger, CTA Order now */}
+          {/* Top Actions: Language switcher, Dark mode trigger, CTA Order now */}
           <div className="hidden sm:flex items-center space-x-3">
+            {/* English and Bangla Mode Buttons */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 font-mono text-[10px] font-bold shrink-0 shadow-inner">
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  language === 'en'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+                title="English"
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage('bn')}
+                className={`px-3 py-1.5 rounded-lg transition-all font-sans ${
+                  language === 'bn'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+                title="বাংলা"
+              >
+                বাংলা
+              </button>
+            </div>
+
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 transition-all"
@@ -161,15 +189,39 @@ export default function App() {
               onClick={() => handleNavigate('order')}
               className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-orange-500/15"
             >
-              Order Now
+              {t('nav.order')}
             </button>
           </div>
 
           {/* Mobile menu trigger */}
-          <div className="flex items-center space-x-2 lg:hidden">
+          <div className="flex items-center space-x-1.5 lg:hidden">
+            {/* English and Bangla Mode Buttons Mobile */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 font-mono text-[9px] font-bold shadow-inner">
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  language === 'en'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500'
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage('bn')}
+                className={`px-2 py-1 rounded-lg transition-all font-sans ${
+                  language === 'bn'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500'
+                }`}
+              >
+                বাংলা
+              </button>
+            </div>
+
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 mr-1"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
             >
               {isDarkMode ? <Sun size={18} className="text-orange-400" /> : <Moon size={18} />}
             </button>
@@ -192,19 +244,19 @@ export default function App() {
               exit={{ opacity: 0, height: 0 }}
               className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-4 space-y-2 flex flex-col"
             >
-              <button onClick={() => handleNavigate('home')} className={getNavClass('home')}>Home</button>
-              <button onClick={() => handleNavigate('services')} className={getNavClass('services')}>Services</button>
-              <button onClick={() => handleNavigate('prices')} className={getNavClass('prices')}>Price List</button>
-              <button onClick={() => handleNavigate('portfolio')} className={getNavClass('portfolio')}>Portfolio</button>
-              <button onClick={() => handleNavigate('about')} className={getNavClass('about')}>About Us</button>
-              <button onClick={() => handleNavigate('contact')} className={getNavClass('contact')}>Contact</button>
-              <button onClick={() => handleNavigate('portal')} className={getNavClass('portal')}>Track Order</button>
+              <button onClick={() => handleNavigate('home')} className={getNavClass('home')}>{t('nav.home')}</button>
+              <button onClick={() => handleNavigate('services')} className={getNavClass('services')}>{t('nav.services')}</button>
+              <button onClick={() => handleNavigate('prices')} className={getNavClass('prices')}>{t('nav.prices')}</button>
+              <button onClick={() => handleNavigate('portfolio')} className={getNavClass('portfolio')}>{t('nav.portfolio')}</button>
+              <button onClick={() => handleNavigate('about')} className={getNavClass('about')}>{t('nav.about')}</button>
+              <button onClick={() => handleNavigate('contact')} className={getNavClass('contact')}>{t('nav.contact')}</button>
+              <button onClick={() => handleNavigate('portal')} className={getNavClass('portal')}>{t('nav.portal')}</button>
               
               <button
                 onClick={() => handleNavigate('order')}
                 className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-md"
               >
-                Order Online Now
+                {t('nav.orderOnline')}
               </button>
             </motion.div>
           )}
@@ -282,11 +334,11 @@ export default function App() {
                 SP
               </div>
               <span className="text-sm font-black tracking-tight text-white font-display">
-                SHAKIL DIGITAL PRINTERS
+                {t('brand.fullName')}
               </span>
             </div>
             <p className="text-xs text-slate-400 font-light leading-relaxed">
-              Leading printing shop located in Melandah Bazar. We offer pristine photo studios, rapid commercial documents copying, high gamut wedding card layouts, and industrial plotter banners.
+              {t('footer.summary')}
             </p>
             <div className="flex items-center space-x-3 pt-2">
               <a href="https://facebook.com/shakildigitalprinters" target="_blank" rel="noreferrer" className="p-2 bg-slate-800 rounded-lg hover:bg-blue-600 hover:text-white transition-colors">
@@ -300,45 +352,45 @@ export default function App() {
 
           {/* Quick links */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Printing Studio</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{t('nav.services')}</h4>
             <ul className="space-y-2 text-xs">
-              <li><button onClick={() => handleNavigate('services')} className="hover:text-white">Services Catalog</button></li>
-              <li><button onClick={() => handleNavigate('prices')} className="hover:text-white">Price Tables</button></li>
-              <li><button onClick={() => handleNavigate('order')} className="hover:text-white">Submit Order Now</button></li>
-              <li><button onClick={() => handleNavigate('portfolio')} className="hover:text-white">Portfolio Gallery</button></li>
+              <li><button onClick={() => handleNavigate('services')} className="hover:text-white">{t('nav.services')}</button></li>
+              <li><button onClick={() => handleNavigate('prices')} className="hover:text-white">{t('nav.prices')}</button></li>
+              <li><button onClick={() => handleNavigate('order')} className="hover:text-white">{t('nav.orderOnline')}</button></li>
+              <li><button onClick={() => handleNavigate('portfolio')} className="hover:text-white">{t('nav.portfolio')}</button></li>
             </ul>
           </div>
 
           {/* Corporate hours & contacts */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Contact Details</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{t('nav.contact')}</h4>
             <div className="space-y-2 text-xs font-light">
               <div className="flex items-center space-x-2">
                 <MapPin size={14} className="text-orange-500" />
-                <span>Mahmudpur road- Melandah Bazar</span>
+                <span>{t('brand.address')}</span>
               </div>
               <div className="flex items-center space-x-2 font-mono">
                 <PhoneCall size={14} className="text-orange-500" />
-                <span>01936-488304</span>
+                <span>{t('brand.phone')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock size={14} className="text-orange-500" />
-                <span>Sat - Thu: 9AM - 10PM</span>
+                <span>{t('brand.hours')}</span>
               </div>
             </div>
           </div>
 
           {/* Operational console access */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Administration</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{t('footer.adminHeader')}</h4>
             <p className="text-xs text-slate-400 font-light">
-              Authorized operators can log into the console to track inventories and download PDF layouts.
+              {t('footer.adminDesc')}
             </p>
             <button
               onClick={() => handleNavigate('admin')}
               className="px-4 py-2 bg-slate-800 hover:bg-orange-500 text-white font-bold text-xs rounded-xl transition-all w-full flex items-center justify-center space-x-1"
             >
-              <span>Operator Login</span>
+              <span>{t('btn.operatorLogin')}</span>
               <ChevronRight size={14} />
             </button>
           </div>
@@ -346,7 +398,7 @@ export default function App() {
         </div>
 
         <div className="max-w-7xl mx-auto border-t border-slate-800 mt-12 pt-6 text-center text-xs text-slate-500 font-light">
-          <p>© {new Date().getFullYear()} Shakil Digital Printers & Studio. All Rights Reserved. Made in Bangladesh.</p>
+          <p>© {new Date().getFullYear()} {t('brand.fullName')}. {t('footer.rights')}</p>
         </div>
       </footer>
 

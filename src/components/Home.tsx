@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ShieldCheck, Truck, Clock, Sparkles, Printer, ArrowRight, Award } from 'lucide-react';
 import { Service } from '../types';
 import { LucideIcon } from './LucideIcon';
+import { useLanguage } from '../LanguageContext';
 
 interface HomeProps {
   onNavigate: (page: string, params?: any) => void;
@@ -9,6 +10,7 @@ interface HomeProps {
 }
 
 export default function Home({ onNavigate, services }: HomeProps) {
+  const { t } = useLanguage();
   const popularServices = services.filter(s => s.popular).slice(0, 4);
 
   return (
@@ -29,7 +31,7 @@ export default function Home({ onNavigate, services }: HomeProps) {
               className="inline-flex w-fit items-center space-x-2 rounded-full bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 text-sm font-medium text-orange-400"
             >
               <Sparkles size={16} />
-              <span>Modern Printing & Design Studio</span>
+              <span>{t('brand.tagline')}</span>
             </motion.div>
 
             <div className="space-y-4">
@@ -39,7 +41,7 @@ export default function Home({ onNavigate, services }: HomeProps) {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl font-display leading-[1.1]"
               >
-                Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">Shakil Digital</span> Printers & Studio
+                {t('home.welcome')}
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, x: -30 }}
@@ -47,7 +49,7 @@ export default function Home({ onNavigate, services }: HomeProps) {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="max-w-2xl text-lg text-blue-100 font-light"
               >
-                Professional Printing, Designing & Studio Services. Experience vibrant colors, high-speed laser prints, durable bindings, and expert photography right at your fingertips.
+                {t('home.welcomeSub')}
               </motion.p>
             </div>
 
@@ -62,7 +64,7 @@ export default function Home({ onNavigate, services }: HomeProps) {
                 onClick={() => onNavigate('order')}
                 className="flex items-center justify-center space-x-2 rounded-xl bg-orange-500 px-8 py-4 font-semibold text-white shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:scale-102 hover:shadow-orange-600/40"
               >
-                <span>Order Online Now</span>
+                <span>{t('nav.orderOnline')}</span>
                 <ArrowRight size={18} />
               </button>
               <button
@@ -70,7 +72,7 @@ export default function Home({ onNavigate, services }: HomeProps) {
                 onClick={() => onNavigate('services')}
                 className="flex items-center justify-center space-x-2 rounded-xl bg-white/10 border border-white/20 px-8 py-4 font-semibold text-white transition-all hover:bg-white/20 hover:scale-102"
               >
-                <span>Explore Services</span>
+                <span>{t('btn.explore')}</span>
                 <Printer size={18} />
               </button>
             </motion.div>
@@ -134,8 +136,8 @@ export default function Home({ onNavigate, services }: HomeProps) {
             <Award size={24} />
           </div>
           <div>
-            <h4 className="font-semibold text-slate-900 dark:text-white">Expert Designers</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Professional branding designers who translate ideas into beautiful layouts.</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">{t('home.feat3.title')}</h4>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.feat3.desc')}</p>
           </div>
         </div>
         <div className="flex items-start space-x-4">
@@ -143,8 +145,8 @@ export default function Home({ onNavigate, services }: HomeProps) {
             <Printer size={24} />
           </div>
           <div>
-            <h4 className="font-semibold text-slate-900 dark:text-white">High-Speed Laser Setup</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Next-generation heavy printing machines for flawless bulk copies.</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">{t('home.feat2.title')}</h4>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.feat2.desc')}</p>
           </div>
         </div>
         <div className="flex items-start space-x-4">
@@ -152,8 +154,8 @@ export default function Home({ onNavigate, services }: HomeProps) {
             <ShieldCheck size={24} />
           </div>
           <div>
-            <h4 className="font-semibold text-slate-900 dark:text-white">Premium Binding</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Durable binding sheets, spiral loops, and laminations to lock quality.</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">{t('home.feat1.title')}</h4>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.feat1.desc')}</p>
           </div>
         </div>
       </section>
@@ -162,14 +164,14 @@ export default function Home({ onNavigate, services }: HomeProps) {
       <section className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Popular Printing Services</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Get high-quality outputs with starting price rates for our most demanded items.</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">{t('services.title')}</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">{t('services.subtitle')}</p>
           </div>
           <button 
             onClick={() => onNavigate('services')}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center space-x-1 shrink-0"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center space-x-1 shrink-0 text-sm"
           >
-            <span>View All Services</span>
+            <span>{t('btn.explore')}</span>
             <ArrowRight size={16} />
           </button>
         </div>
@@ -194,13 +196,13 @@ export default function Home({ onNavigate, services }: HomeProps) {
 
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-slate-400 block">Starting from</span>
+                  <span className="text-xs text-slate-400 block">{t('services.startPrice')}</span>
                   <span className="font-bold text-slate-900 dark:text-white text-lg">৳{service.startingPrice}</span>
                 </div>
                 <button
                   onClick={() => onNavigate('order', { serviceId: service.id })}
                   className="rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white p-2.5 text-slate-700 dark:text-slate-300 transition-colors"
-                  title="Order This Service"
+                  title={t('services.orderThis')}
                 >
                   <ArrowRight size={18} />
                 </button>
@@ -244,3 +246,4 @@ export default function Home({ onNavigate, services }: HomeProps) {
     </div>
   );
 }
+
