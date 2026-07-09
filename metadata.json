@@ -1,0 +1,6 @@
+{
+  "name": "Shakil Digital Printers & Studio",
+  "description": "Professional Printing, Designing & Studio Services online ordering platform and admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
