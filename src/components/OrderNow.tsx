@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, UploadCloud, File, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, Loader2, Sparkles, Printer } from 'lucide-react';
 import { Service, PriceItem } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface OrderNowProps {
   services: Service[];
@@ -18,6 +19,9 @@ interface OrderNowProps {
 }
 
 export default function OrderNow({ services, prices, prefilledParams, onOrderSuccess, onNavigate }: OrderNowProps) {
+  const { language, t } = useLanguage();
+  const isEn = language === 'en';
+
   // Form State
   const [customerName, setCustomerName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -105,12 +109,12 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
     ];
     
     if (!allowedTypes.includes(file.type) && !file.name.endsWith('.docx') && !file.name.endsWith('.doc')) {
-      setUploadError('Only PDF, JPG, PNG, or DOCX files are allowed.');
+      setUploadError(isEn ? 'Only PDF, JPG, PNG, or DOCX files are allowed.' : 'শুধুমাত্র PDF, JPG, PNG বা DOCX ফাইল অনুমোদিত।');
       return;
     }
 
     if (file.size > 25 * 1024 * 1024) { // 25MB limit
-      setUploadError('File exceeds 25MB limit.');
+      setUploadError(isEn ? 'File exceeds 25MB limit.' : 'ফাইলটি ২৫ মেগাবাইটের বেশি বড় হতে পারবে না।');
       return;
     }
 
@@ -124,7 +128,7 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
       });
     };
     reader.onerror = () => {
-      setUploadError('Failed to parse file.');
+      setUploadError(isEn ? 'Failed to parse file.' : 'ফাইল লোড করতে ব্যর্থ হয়েছে।');
     };
     reader.readAsDataURL(file);
   };
@@ -159,9 +163,9 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
     e.preventDefault();
     setErrorMsg('');
     
-    if (!customerName.trim()) return setErrorMsg('Customer Name is required.');
-    if (!phoneNumber.trim()) return setErrorMsg('Phone Number is required.');
-    if (!deliveryAddress.trim()) return setErrorMsg('Delivery Address is required.');
+    if (!customerName.trim()) return setErrorMsg(isEn ? 'Customer Name is required.' : 'গ্রাহকের নাম আবশ্যক।');
+    if (!phoneNumber.trim()) return setErrorMsg(isEn ? 'Phone Number is required.' : 'মোবাইল নম্বর আবশ্যক।');
+    if (!deliveryAddress.trim()) return setErrorMsg(isEn ? 'Delivery Address is required.' : 'ডেলিভারি ঠিকানা আবশ্যক।');
 
     setLoading(true);
     const selectedSrv = services.find(s => s.id === serviceId);
@@ -193,10 +197,10 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
         setSuccessOrder(data.order);
         onOrderSuccess(data.order.id);
       } else {
-        setErrorMsg(data.message || 'Failed to place order. Try again.');
+        setErrorMsg(data.message || (isEn ? 'Failed to place order. Try again.' : 'অর্ডার করতে ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।'));
       }
     } catch (err) {
-      setErrorMsg('Network error. Failed to connect to server.');
+      setErrorMsg(isEn ? 'Network error. Failed to connect to server.' : 'নেটওয়ার্ক ত্রুটি। সার্ভারের সাথে সংযোগ করা সম্ভব হয়নি।');
     } finally {
       setLoading(false);
     }
@@ -220,8 +224,8 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                   <ShoppingBag size={22} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">Place Online Order</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Fill details, upload files, and lock dynamic prices instantly.</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">{isEn ? "Place Online Order" : "অনলাইন অর্ডার করুন"}</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{isEn ? "Fill details, upload files, and lock dynamic prices instantly." : "ফর্ম পূরণ করুন, ফাইল আপলোড করুন এবং তাৎক্ষণিকভাবে আপনার সম্ভাব্য মূল্য দেখে নিন।"}</p>
                 </div>
               </div>
 
@@ -234,11 +238,11 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
 
               {/* Personal Information Group */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">1. Customer Information</h3>
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">{isEn ? "1. Customer Information" : "১. গ্রাহকের তথ্য"}</h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Full Name *</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Full Name *" : "সম্পূর্ণ নাম *"}</label>
                     <input
                       type="text"
                       required
@@ -249,7 +253,7 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Phone Number *</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Phone Number *" : "মোবাইল নম্বর *"}</label>
                     <input
                       type="tel"
                       required
@@ -263,7 +267,7 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email Address (Optional)</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Email Address (Optional)" : "ইমেইল অ্যাড্রেস (ঐচ্ছিক)"}</label>
                     <input
                       type="email"
                       placeholder="e.g. name@example.com"
@@ -273,11 +277,11 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Delivery Address *</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Delivery Address *" : "ডেলিভারি ঠিকানা *"}</label>
                     <input
                       type="text"
                       required
-                      placeholder="Home address or office sector"
+                      placeholder={isEn ? "Home address or office sector" : "বাসা বা অফিসের ঠিকানা"}
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
@@ -290,23 +294,31 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
 
               {/* Printing Configuration Group */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">2. Printing Specifications</h3>
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">{isEn ? "2. Printing Specifications" : "২. প্রিন্টিং স্পেসিফিকেশন"}</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Select Service Type</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Select Service Type" : "সেবার ধরন নির্বাচন করুন"}</label>
                     <select
                       value={serviceId}
                       onChange={(e) => setServiceId(e.target.value)}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
                     >
-                      {services.map(s => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
+                      {services.map(s => {
+                        const displayName = isEn ? s.name : (
+                          s.id === '1' ? 'পিভিসি আইডি কার্ড' :
+                          s.id === '2' ? 'কাস্টম ফ্লেক্স ব্যানার' :
+                          s.id === '3' ? 'লাক্সারি বিজনেস কার্ড' :
+                          s.id === '4' ? 'অ্যাকাডেমিক আইডি কার্ড' :
+                          s.id === '5' ? 'ডিজিটাল ফটো প্রিন্টিং' :
+                          s.id === '6' ? 'আমন্ত্রণ ও ওয়েডিং কার্ড' : s.name
+                        );
+                        return <option key={s.id} value={s.id}>{displayName}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Quantity (Units)</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Quantity (Units)" : "পরিমাণ (সংখ্যা)"}</label>
                     <input
                       type="number"
                       required
@@ -320,19 +332,26 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Paper Size / Scale</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Paper Size / Scale" : "কাগজের সাইজ / স্কেল"}</label>
                     <select
                       value={paperSize}
                       onChange={(e) => setPaperSize(e.target.value)}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
                     >
-                      {getPaperSizes().map(sz => (
-                        <option key={sz} value={sz}>{sz}</option>
-                      ))}
+                      {getPaperSizes().map(sz => {
+                        const displaySz = isEn ? sz : (
+                          sz === 'Passport Size' ? 'পাসপোর্ট সাইজ' :
+                          sz === 'Passport (Set of 8)' ? 'পাসপোর্ট (৮টির সেট)' :
+                          sz === 'Stamp (Set of 12)' ? 'স্ট্যাম্প (১২টির সেট)' :
+                          sz === 'Per Sq. Ft.' ? 'প্রতি বর্গফুট' :
+                          sz === 'Standard ID' ? 'স্ট্যান্ডার্ড আইডি' : sz
+                        );
+                        return <option key={sz} value={sz}>{displaySz}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Color Profile</label>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Color Profile" : "রঙের প্রোফাইল"}</label>
                     <div className="grid grid-cols-2 gap-2">
                       {(['Color', 'Black & White'] as const).map(opt => (
                         <button
@@ -345,7 +364,7 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                               : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
                           }`}
                         >
-                          {opt}
+                          {opt === 'Color' ? (isEn ? 'Color' : 'রঙিন') : (isEn ? 'Black & White' : 'সাদাকালো')}
                         </button>
                       ))}
                     </div>
@@ -357,7 +376,7 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
 
               {/* Upload & instructions */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">3. Document Upload & Notes</h3>
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider font-mono">{isEn ? "3. Document Upload & Notes" : "৩. ডকুমেন্ট আপলোড ও বিশেষ নির্দেশনা"}</h3>
 
                 {/* Drag and drop panel */}
                 <div 
@@ -385,8 +404,8 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                   {!selectedFile ? (
                     <div className="space-y-2">
                       <UploadCloud size={36} className="text-slate-400 mx-auto" />
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Drag and drop file here, or click to browse</p>
-                      <p className="text-xs text-slate-400">Supports PDF, JPG, PNG, DOCX up to 25MB</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{isEn ? "Drag and drop file here, or click to browse" : "ডকুমেন্ট ফাইল ড্র্যাগ করে এখানে ড্রপ করুন অথবা ব্রাউজ করতে ক্লিক করুন"}</p>
+                      <p className="text-xs text-slate-400">{isEn ? "Supports PDF, JPG, PNG, DOCX up to 25MB" : "পিডিএফ, জেপিজি, পিএনজি, ডক ফাইল সর্বোচ্চ ২৫ মেগাবাইট পর্যন্ত গ্রহণযোগ্য"}</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-emerald-500/20 rounded-xl p-3 max-w-md mx-auto">
@@ -403,11 +422,11 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedFile(null);
+                           setSelectedFile(null);
                         }}
                         className="text-xs font-bold text-rose-500 hover:text-rose-600 px-2 py-1 bg-rose-50 dark:bg-rose-950/20 rounded"
                       >
-                        Remove
+                        {isEn ? "Remove" : "মুছে ফেলুন"}
                       </button>
                     </div>
                   )}
@@ -418,10 +437,10 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Additional Instructions</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{isEn ? "Additional Instructions" : "বিশেষ কোনো নির্দেশনা"}</label>
                   <textarea
                     rows={3}
-                    placeholder="Provide binding specifications, matte/glossy preference, crop details, etc..."
+                    placeholder={isEn ? "Provide binding specifications, matte/glossy preference, crop details, etc..." : "বই বাঁধাইয়ের বিবরণ, পেপারের ধরন (ম্যাট/গ্লসি) বা অন্যান্য প্রয়োজনীয় নির্দেশনাবলী লিখুন..."}
                     value={additionalInstructions}
                     onChange={(e) => setAdditionalInstructions(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
@@ -439,12 +458,12 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
                   {loading ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      <span>Uploading File & Processing Order...</span>
+                      <span>{isEn ? "Uploading File & Processing Order..." : "ফাইল আপলোড এবং অর্ডার প্রসেস করা হচ্ছে..."}</span>
                     </>
                   ) : (
                     <>
                       <CheckCircle size={16} />
-                      <span>Confirm Order Now - ৳{currentEstimate()}</span>
+                      <span>{isEn ? `Confirm Order Now - ৳${currentEstimate()}` : `এখনই অর্ডার নিশ্চিত করুন - ৳${currentEstimate()}`}</span>
                     </>
                   )}
                 </button>
@@ -456,47 +475,53 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
               <div className="bg-gradient-to-tr from-blue-900 to-indigo-950 text-white rounded-3xl p-6 border border-white/10 shadow-lg space-y-4">
                 <div className="flex items-center space-x-2">
                   <Sparkles className="text-orange-400" size={18} />
-                  <span className="text-xs uppercase font-mono text-orange-400 font-bold">LIVE ESTIMATION</span>
+                  <span className="text-xs uppercase font-mono text-orange-400 font-bold">{isEn ? "LIVE ESTIMATION" : "লাইভ সম্ভাব্য মূল্য"}</span>
                 </div>
                 
                 <div className="space-y-1">
-                  <span className="text-xs text-blue-200">Current configuration total:</span>
+                  <span className="text-xs text-blue-200">{isEn ? "Current configuration total:" : "বর্তমান কনফিগারেশনের মোট মূল্য:"}</span>
                   <div className="flex items-baseline space-x-1">
                     <span className="text-4xl font-extrabold text-white font-mono">৳{currentEstimate()}</span>
-                    <span className="text-xs text-blue-300">BDT</span>
+                    <span className="text-xs text-blue-300">{isEn ? "BDT" : "টাকা"}</span>
                   </div>
                 </div>
 
                 <div className="border-t border-white/10 pt-4 space-y-2 text-xs font-light text-blue-200">
                   <div className="flex justify-between">
-                    <span>Base Service starting rate</span>
+                    <span>{isEn ? "Base Service starting rate" : "সেবার প্রারম্ভিক মূল্য"}</span>
                     <span className="font-semibold text-white font-mono">
                       ৳{services.find(s => s.id === serviceId)?.startingPrice || 0}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Selected size multiplier</span>
+                    <span>{isEn ? "Selected size multiplier" : "কাগজের সাইজ বা স্কেল"}</span>
                     <span className="font-semibold text-white font-mono">
-                      {paperSize}
+                      {isEn ? paperSize : (
+                        paperSize === 'Passport Size' ? 'পাসপোর্ট সাইজ' :
+                        paperSize === 'Passport (Set of 8)' ? 'পাসপোর্ট (৮টির সেট)' :
+                        paperSize === 'Stamp (Set of 12)' ? 'স্ট্যাম্প (১২টির সেট)' :
+                        paperSize === 'Per Sq. Ft.' ? 'প্রতি বর্গফুট' :
+                        paperSize === 'Standard ID' ? 'স্ট্যান্ডার্ড আইডি' : paperSize
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Quantity</span>
+                    <span>{isEn ? "Quantity" : "পরিমাণ"}</span>
                     <span className="font-semibold text-white font-mono">
                       x{quantity}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Color Mode Discount</span>
+                    <span>{isEn ? "Color Mode Discount" : "রঙের মোড ডিসকাউন্ট"}</span>
                     <span className="font-semibold text-white font-mono">
-                      {colorOption === 'Color' ? 'None (Full Saturation)' : '60% Discount Applied'}
+                      {colorOption === 'Color' ? (isEn ? 'None (Full Saturation)' : 'ডিসকাউন্ট নেই') : (isEn ? '60% Discount Applied' : '৬০% ডিসকাউন্ট প্রযোজ্য')}
                     </span>
                   </div>
                 </div>
 
                 {quantity >= 100 && (
                   <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 text-xs text-orange-400 font-medium">
-                    🔥 Volume Discount trigger active: {quantity >= 500 ? '30% discount' : '15% discount'} already factored in the total!
+                    🔥 {isEn ? `Volume Discount trigger active: ${quantity >= 500 ? '30%' : '15%'} discount factored in!` : `ভলিউম ডিসকাউন্ট সক্রিয়: ${quantity >= 500 ? '৩০%' : '১৫%'} ছাড় অলরেডি হিসাব করা হয়েছে!`}
                   </div>
                 )}
               </div>
@@ -504,9 +529,9 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
               {/* Secure studio badges */}
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm text-center space-y-3">
                 <Printer className="text-blue-600 dark:text-blue-400 mx-auto" size={32} />
-                <h4 className="font-semibold text-sm text-slate-800 dark:text-white">Studio Guarantee</h4>
+                <h4 className="font-semibold text-sm text-slate-800 dark:text-white">{isEn ? "Studio Guarantee" : "স্টুডিও গ্যারান্টি"}</h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-light leading-relaxed">
-                  We verify every uploaded print layout manually. If sizes or color profiles are misaligned, we will contact you via WhatsApp before printing begins.
+                  {isEn ? "We verify every uploaded print layout manually. If sizes or color profiles are misaligned, we will contact you via WhatsApp before printing begins." : "আমরা প্রতিটি আপলোড করা ফাইল ম্যানুয়ালি যাচাই করি। সাইজ বা কালার প্রোফাইলে কোনো সমস্যা থাকলে প্রিন্টিং শুরুর আগে আমরা সরাসরি আপনার হোয়াটসঅ্যাপে যোগাযোগ করব।"}
                 </p>
               </div>
             </div>
@@ -523,60 +548,77 @@ export default function OrderNow({ services, prices, prefilledParams, onOrderSuc
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 font-mono">Order Received Successfully</span>
-              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white font-display">Thank you for your Order!</h2>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 font-mono">{isEn ? "Order Received Successfully" : "অর্ডার সফলভাবে জমা হয়েছে"}</span>
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white font-display">{isEn ? "Thank you for your Order!" : "আপনার অর্ডারের জন্য ধন্যবাদ!"}</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
-                Your order has been placed into our production queue. Here is your tracking receipt:
+                {isEn ? "Your order has been placed into our production queue. Here is your tracking receipt:" : "আপনার অর্ডারটি আমাদের প্রোডাকশন লাইনে যুক্ত করা হয়েছে। নিচে আপনার ট্র্যাকিং রসিদ দেওয়া হলো:"}
               </p>
             </div>
 
             {/* Receipt Box */}
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 space-y-3 text-left">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">Order ID:</span>
+                <span className="text-slate-400">{isEn ? "Order ID:" : "অর্ডার আইডি:"}</span>
                 <span className="font-bold text-blue-600 dark:text-blue-400 font-mono text-sm">{successOrder.id}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">Service:</span>
-                <span className="font-semibold text-slate-800 dark:text-white">{successOrder.serviceName}</span>
+                <span className="text-slate-400">{isEn ? "Service:" : "সেবার নাম:"}</span>
+                <span className="font-semibold text-slate-800 dark:text-white">
+                  {isEn ? successOrder.serviceName : (
+                    successOrder.serviceId === '1' ? 'পিভিসি আইডি কার্ড' :
+                    successOrder.serviceId === '2' ? 'কাস্টม ফ্লেক্স ব্যানার' :
+                    successOrder.serviceId === '3' ? 'লাক্সারি বিজনেস কার্ড' :
+                    successOrder.serviceId === '4' ? 'অ্যাকাডেমিক আইডি কার্ড' :
+                    successOrder.serviceId === '5' ? 'ডিজিটাল ফটো প্রিন্টিং' :
+                    successOrder.serviceId === '6' ? 'আমন্ত্রণ ও ওয়েডিং কার্ড' : successOrder.serviceName
+                  )}
+                </span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">Quantity:</span>
-                <span className="font-semibold text-slate-800 dark:text-white font-mono">{successOrder.quantity} units ({successOrder.paperSize})</span>
+                <span className="text-slate-400">{isEn ? "Quantity:" : "পরিমাণ:"}</span>
+                <span className="font-semibold text-slate-800 dark:text-white font-mono">{successOrder.quantity} {isEn ? "units" : "টি"} ({
+                  isEn ? successOrder.paperSize : (
+                    successOrder.paperSize === 'Passport Size' ? 'পাসপোর্ট সাইজ' :
+                    successOrder.paperSize === 'Passport (Set of 8)' ? 'পাসপোর্ট (৮টির সেট)' :
+                    successOrder.paperSize === 'Stamp (Set of 12)' ? 'স্ট্যাম্প (১২টির সেট)' :
+                    successOrder.paperSize === 'Per Sq. Ft.' ? 'প্রতি বর্গফুট' :
+                    successOrder.paperSize === 'Standard ID' ? 'স্ট্যান্ডার্ড আইডি' : successOrder.paperSize
+                  )
+                })</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">Total Charged:</span>
+                <span className="text-slate-400">{isEn ? "Total Charged:" : "মোট চার্জ:"}</span>
                 <span className="font-bold text-slate-950 dark:text-white font-mono text-sm">৳{successOrder.totalPrice}</span>
               </div>
               <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200 dark:border-slate-700">
-                <span className="text-slate-400">Order Status:</span>
+                <span className="text-slate-400">{isEn ? "Order Status:" : "অর্ডারের অবস্থা:"}</span>
                 <span className="px-2 py-0.5 font-bold uppercase text-[9px] rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400">
-                  {successOrder.status}
+                  {successOrder.status === 'Pending' ? (isEn ? 'Pending' : 'অপেক্ষমান') : successOrder.status}
                 </span>
               </div>
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-xl text-left border border-blue-100 dark:border-blue-900/50">
               <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed font-light">
-                💡 <strong>What's Next?</strong> Copy your <strong>Order ID ({successOrder.id})</strong>. You can check real-time processing updates or download your printable PDF invoice in our <strong>Track Order</strong> portal anytime.
+                💡 <strong>{isEn ? "What's Next?" : "পরবর্তী ধাপ কী?"}</strong> {isEn ? "Copy your Order ID" : "আপনার অর্ডার আইডি কপি করুন"} ({successOrder.id})। {isEn ? "Please note down your Order ID. You can track progress or download your invoice on the homepage tracking console anytime." : "দয়া করে অর্ডার আইডিটি সংরক্ষণ করুন। পরবর্তীতে হোমপেজের ট্র্যাকিং পোর্টাল ব্যবহার করে যেকোনো সময় আপনার কাজের অগ্রগতি জানতে ও ইনভয়েস ডাউনলোড করতে পারবেন।"}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => onNavigate('portal')}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-1"
+                onClick={() => onNavigate('home')}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
               >
-                <span>Track Order</span>
+                <span>{isEn ? "Back to Home" : "হোম পেজে ফিরুন"}</span>
               </button>
               <button
                 onClick={() => {
                   setSuccessOrder(null);
                   setSelectedFile(null);
                 }}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl text-xs transition-all"
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl text-xs transition-all cursor-pointer"
               >
-                Place New Order
+                {isEn ? "Place New Order" : "নতুন অর্ডার করুন"}
               </button>
             </div>
           </motion.div>

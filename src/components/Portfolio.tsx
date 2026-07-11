@@ -6,6 +6,7 @@ import {
   Megaphone, Percent, MapPin, Calendar, Clock, Flag, Tag
 } from 'lucide-react';
 import { GalleryItem } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface PortfolioProps {
   galleryItems: GalleryItem[];
@@ -102,6 +103,9 @@ const PRESET_AVATARS = [
 ];
 
 export default function Portfolio({ galleryItems, onNavigate }: PortfolioProps) {
+  const { language, t } = useLanguage();
+  const isEn = language === 'en';
+
   const [activeFilter, setActiveFilter] = useState('All');
   const [lightboxImage, setLightboxImage] = useState<GalleryItem | null>(null);
 
@@ -292,28 +296,38 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white font-display">
-          Our Design Portfolio
+          {t('portfolio.title')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 font-light">
-          Take a look at some of our actual production layouts, high gamut photo prints, sturdy PVC ID cards, and weather-resistant flex banners.
+          {t('portfolio.subtitle')}
         </p>
       </div>
 
       {/* Filter Options */}
       <div className="flex flex-wrap gap-2 justify-center bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm max-w-4xl mx-auto">
-        {filters.map(filter => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
-              activeFilter === filter
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
+        {filters.map(filter => {
+          const label = filter === 'All' ? t('portfolio.filterAll') : (
+            filter === 'Banner' ? (isEn ? 'Banner' : 'ব্যানার') :
+            filter === 'Business Card' ? (isEn ? 'Business Card' : 'বিজনেস কার্ড') :
+            filter === 'Photo Print' ? (isEn ? 'Photo Print' : 'ফটো প্রিন্ট') :
+            filter === 'Flex' ? (isEn ? 'Flex' : 'ফ্লেক্স ব্যানার') :
+            filter === 'ID Card' ? (isEn ? 'ID Card' : 'আইডি কার্ড') :
+            filter === 'Wedding Cards' ? (isEn ? 'Wedding Cards' : 'আমন্ত্রণ পত্র') : filter
+          );
+          return (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+                activeFilter === filter
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Interactive Banner Designer (Only shown when Banner filter is active) */}
@@ -330,19 +344,19 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
                   <Megaphone size={18} className="animate-bounce" />
-                  <span className="text-xs font-bold uppercase tracking-wider font-mono">Live Flex Banner Customizer</span>
+                  <span className="text-xs font-bold uppercase tracking-wider font-mono">{isEn ? "Live Flex Banner Customizer" : "লাইভ ফ্লেক্স ব্যানার কাস্টমাইজার"}</span>
                 </div>
                 <h2 className="text-2xl font-black font-display text-slate-800 dark:text-white">
-                  Interactive Banner Creator
+                  {t('portfolio.bannerTitle')}
                 </h2>
                 <p className="text-xs text-slate-400 font-light">
-                  Choose a layout preset, customize the promotional headers, dates, and click "Apply & Order Prints" to submit.
+                  {t('portfolio.bannerSub')}
                 </p>
               </div>
 
               {/* Ratio toggle */}
               <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800 shrink-0 self-start md:self-center">
-                <span className="text-[10px] font-bold text-slate-400 px-2 uppercase font-mono">Size Ratio:</span>
+                <span className="text-[10px] font-bold text-slate-400 px-2 uppercase font-mono">{t('portfolio.ratioSize')}</span>
                 {(['3:1', '2:1', '4:1'] as const).map(ratio => (
                   <button
                     key={ratio}
@@ -353,7 +367,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                     }`}
                   >
-                    {ratio === '3:1' ? '3:1 (Wide)' : ratio === '2:1' ? '2:1 (Classic)' : '4:1 (Panoramic)'}
+                    {ratio === '3:1' ? t('portfolio.aspectWide') : ratio === '2:1' ? t('portfolio.aspectClassic') : t('portfolio.aspectPano')}
                   </button>
                 ))}
               </div>
@@ -368,11 +382,23 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* 1. Layout Selector */}
                 <div className="space-y-2">
                   <label className="text-[11px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">
-                    1. Choose Banner Theme Preset
+                    {t('portfolio.chooseBannerStyle')}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {BANNER_TEMPLATES.map(tmpl => {
                       const isActive = selectedBannerTemplate === tmpl.id;
+                      const displayName = isEn ? tmpl.name : (
+                        tmpl.id === 'store' ? 'স্টোর প্রোমোশন ব্যানার' :
+                        tmpl.id === 'event' ? 'কনসার্ট ও উৎসব ব্যানার' :
+                        tmpl.id === 'campaign' ? 'নির্বাচনী প্রচার ব্যানার' :
+                        'স্টুডিও ও সার্ভিস প্রোমো'
+                      );
+                      const displayTagline = isEn ? tmpl.tagline : (
+                        tmpl.id === 'store' ? 'সবচেয়ে বড় বার্ষিক মেলা' :
+                        tmpl.id === 'event' ? 'প্রবেশ মূল্য সম্পূর্ণ ফ্রি' :
+                        tmpl.id === 'campaign' ? 'সৎ, যোগ্য ও নির্ভরযোগ্য' :
+                        'মাহমুদপুর রোড - মেলান্দহ'
+                      );
                       return (
                         <button
                           key={tmpl.id}
@@ -388,10 +414,10 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                             style={{ backgroundColor: tmpl.defaultBgColor }}
                           />
                           <h4 className="text-xs font-bold text-slate-800 dark:text-white truncate">
-                            {tmpl.name}
+                            {displayName}
                           </h4>
                           <span className="text-[9px] text-slate-400 block mt-0.5 font-mono truncate">
-                            {tmpl.tagline}
+                            {displayTagline}
                           </span>
                           {isActive && (
                             <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-indigo-600 flex items-center justify-center text-white">
@@ -407,13 +433,13 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* 2. Text Fields */}
                 <div className="space-y-3.5 bg-slate-50/50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/40">
                   <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">
-                    2. Personalize Headline & Promotional Text
+                    {t('portfolio.personalizeBanner')}
                   </span>
 
                   <div className="space-y-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Highlight Tag / Top Badge Text
+                        {t('portfolio.bannerHighlight')}
                       </label>
                       <div className="relative">
                         <Tag size={13} className="absolute left-3.5 top-3 text-slate-400" />
@@ -429,7 +455,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Main Banner Title / Big Headline
+                        {t('portfolio.bannerMainTitle')}
                       </label>
                       <div className="relative">
                         <Sparkles size={13} className="absolute left-3.5 top-3 text-slate-400" />
@@ -445,7 +471,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Promo Subtitle / Supporting Offer Info
+                        {t('portfolio.bannerPromo')}
                       </label>
                       <input
                         type="text"
@@ -631,7 +657,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-2 text-slate-400 text-xs font-light">
                 <Info size={16} className="text-yellow-500 animate-pulse" />
-                <span>Banners are printed on weather-resistant heavy star flex with grommets pre-installed</span>
+                <span>{t('portfolio.grommetsMsg')}</span>
               </div>
               
               <div className="flex items-center space-x-3 w-full sm:w-auto">
@@ -641,7 +667,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                   className="w-full sm:w-auto flex items-center justify-center space-x-2 py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold rounded-xl text-xs transition-all shadow-md shadow-indigo-500/10 active:scale-95 animate-pulse"
                 >
                   <Sparkles size={14} />
-                  <span>Apply & Order Prints</span>
+                  <span>{t('btn.applyOrder')}</span>
                 </button>
               </div>
             </div>
@@ -664,13 +690,13 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
                   <Sparkles size={18} className="animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-wider font-mono">Live PVC Customizer</span>
+                  <span className="text-xs font-bold uppercase tracking-wider font-mono">{isEn ? "Live PVC Customizer" : "লাইভ পিভিসি কাস্টমাইজার"}</span>
                 </div>
                 <h2 className="text-2xl font-black font-display text-slate-800 dark:text-white">
-                  Interactive ID Card Creator
+                  {t('portfolio.idTitle')}
                 </h2>
                 <p className="text-xs text-slate-400 font-light">
-                  Choose a layout preset, personalize fields instantly, and click "Apply & Order Prints" to submit.
+                  {t('portfolio.idSub')}
                 </p>
               </div>
               
@@ -683,7 +709,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  Front Side
+                  {t('portfolio.frontSide')}
                 </button>
                 <button
                   onClick={() => setCardSide('back')}
@@ -693,7 +719,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  Back Side
+                  {t('portfolio.backSide')}
                 </button>
               </div>
             </div>
@@ -707,11 +733,17 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* 1. Layout Selector */}
                 <div className="space-y-2">
                   <label className="text-[11px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">
-                    1. Choose Layout Style
+                    {t('portfolio.chooseStyle')}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {TEMPLATES.map(tmpl => {
                       const isActive = selectedTemplate === tmpl.id;
+                      const displayName = isEn ? tmpl.name : (
+                        tmpl.id === 'corporate' ? 'পেশাদার করপোরেট' :
+                        tmpl.id === 'student' ? 'অ্যাকাডেমিক স্টুডেন্ট' :
+                        tmpl.id === 'press' ? 'প্রেস / মিডিয়া ব্যাজ' :
+                        'স্বাস্থ্যকর্মী আইডি'
+                      );
                       return (
                         <button
                           key={tmpl.id}
@@ -727,7 +759,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                             style={{ backgroundColor: tmpl.defaultColor }}
                           />
                           <h4 className="text-xs font-bold text-slate-800 dark:text-white truncate">
-                            {tmpl.name}
+                            {displayName}
                           </h4>
                           <span className="text-[9px] text-slate-400 block mt-0.5 font-mono truncate">
                             {tmpl.defaultLogo} Template
@@ -746,13 +778,13 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* 2. Text Fields */}
                 <div className="space-y-3.5 bg-slate-50/50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/40">
                   <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">
-                    2. Personalize Cardholder Details
+                    {t('portfolio.personalizeDetails')}
                   </span>
 
                   <div className="space-y-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Institution / Organization Name
+                        {t('portfolio.orgName')}
                       </label>
                       <div className="relative">
                         <Building size={13} className="absolute left-3.5 top-3 text-slate-400" />
@@ -769,7 +801,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                          Short Brand Logo Text
+                          {t('portfolio.brandLogo')}
                         </label>
                         <input
                           type="text"
@@ -781,7 +813,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                          Accent Theme Color
+                          {t('portfolio.accentColor')}
                         </label>
                         <div className="flex items-center space-x-2">
                           <input
@@ -797,7 +829,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Full Name
+                        {t('portfolio.fullName')}
                       </label>
                       <div className="relative">
                         <User size={13} className="absolute left-3.5 top-3 text-slate-400" />
@@ -813,7 +845,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Designation / Role / Grade Class
+                        {t('portfolio.designation')}
                       </label>
                       <input
                         type="text"
@@ -827,7 +859,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                          ID Number / Roll Code
+                          {t('portfolio.idNo')}
                         </label>
                         <input
                           type="text"
@@ -839,7 +871,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                          Blood Group
+                          {t('portfolio.bloodGroup')}
                         </label>
                         <select
                           value={bloodGroup}
@@ -860,7 +892,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mb-1">
-                        Emergency Contact Phone
+                        {t('portfolio.emergencyPhone')}
                       </label>
                       <div className="relative">
                         <Phone size={13} className="absolute left-3.5 top-3 text-slate-400" />
@@ -879,7 +911,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* 3. Photo selection / custom upload */}
                 <div className="space-y-2">
                   <label className="text-[11px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">
-                    3. Profile Photo Selection
+                    {t('portfolio.photoSelect')}
                   </label>
                   
                   <div className="flex flex-wrap gap-2 items-center">
@@ -1033,15 +1065,15 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                             {/* Info Table Details Grid */}
                             <div className="w-full bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 text-left space-y-1.5 text-[9px] select-none font-mono">
                               <div className="flex justify-between">
-                                <span className="text-slate-400">ID CARD NO:</span>
+                                <span className="text-slate-400">{t('portfolio.idCardNo')}</span>
                                 <span className="text-slate-700 dark:text-slate-300 font-bold">{idNumber}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-slate-400">BLOOD GRP:</span>
+                                <span className="text-slate-400">{t('portfolio.bloodGrp')}</span>
                                 <span className="text-slate-700 dark:text-slate-300 font-bold">{bloodGroup}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-slate-400">EMERGENCY:</span>
+                                <span className="text-slate-400">{t('portfolio.emergencyLabel')}</span>
                                 <span className="text-slate-700 dark:text-slate-300 font-bold">{phone}</span>
                               </div>
                             </div>
@@ -1051,8 +1083,8 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                           <div className="px-4 pb-4 pt-1 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/40 z-10 flex flex-col space-y-1">
                             <Barcode />
                             <div className="flex justify-between text-[7px] text-slate-400 font-mono">
-                              <span>SECURE PRINT PASS</span>
-                              <span>* AUTHORIZED SIGNATORY</span>
+                              <span>{isEn ? "SECURE PRINT PASS" : "সুরক্ষিত প্রিন্ট পাস"}</span>
+                              <span>{isEn ? "* AUTHORIZED SIGNATORY" : "* অনুমোদিত স্বাক্ষরকারী"}</span>
                             </div>
                           </div>
 
@@ -1086,13 +1118,13 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                             {/* Security statement */}
                             <div className="text-[8px] leading-normal text-slate-400 font-light space-y-1">
                               <p>
-                                1. This card is non-transferable and remains the absolute property of <strong className="text-slate-600 dark:text-slate-300">{orgName}</strong>.
+                                {isEn ? `1. This card is non-transferable and remains the absolute property of ` : `১. এই কার্ডটি হস্তান্তরযোগ্য নয় এবং এটি সম্পূর্ণ মালিকানাধীন `} <strong className="text-slate-600 dark:text-slate-300">{orgName}</strong>.
                               </p>
                               <p>
-                                2. Loss or damage of this card must be immediately reported to the authority.
+                                {isEn ? "2. Loss or damage of this card must be immediately reported to the authority." : "২. এই কার্ডটির ক্ষতি বা হারিয়ে যাওয়ার তথ্য অবিলম্বে কর্তৃপক্ষকে জানাতে হবে।"}
                               </p>
                               <p>
-                                3. If found, please return to: <strong className="text-slate-600 dark:text-slate-300">Mahmudpur road- Melandah Bazar</strong>.
+                                {isEn ? "3. If found, please return to: " : "৩. সন্ধান পাওয়া গেলে দয়া করে এই ঠিকানায় ফেরত দিন: "} <strong className="text-slate-600 dark:text-slate-300">{isEn ? "Mahmudpur road- Melandah Bazar" : "মাহমুদপুর রোড- মেলান্দহ বাজার"}</strong>.
                               </p>
                             </div>
 
@@ -1104,11 +1136,11 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                               <div className="text-right space-y-1 flex-grow">
                                 <div className="border-b border-slate-300 dark:border-slate-700 pb-1 relative">
                                   <span className="font-serif italic text-xs text-slate-500 select-none block transform -rotate-3 leading-none h-4">
-                                    {fullName.split(' ')[0]} Sign
+                                    {isEn ? `${fullName.split(' ')[0]} Sign` : `${fullName.split(' ')[0]} এর স্বাক্ষর`}
                                   </span>
                                 </div>
                                 <span className="text-[6px] uppercase text-slate-400 font-mono tracking-wider block">
-                                  AUTHORIZED SIGNATURE
+                                  {isEn ? "AUTHORIZED SIGNATURE" : "অনুমোদিত স্বাক্ষর"}
                                 </span>
                               </div>
                             </div>
@@ -1117,7 +1149,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                           {/* Back Footer strip */}
                           <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-center select-none">
                             <span className="text-[8px] font-bold text-slate-400 font-mono">
-                              PRINTED AT SHAKIL DIGITAL PRINTERS
+                              {isEn ? "PRINTED AT SHAKIL DIGITAL PRINTERS" : "শাকিল ডিজিটাল প্রিন্টারে মুদ্রিত"}
                             </span>
                             <p className="text-[7px] text-slate-300 dark:text-slate-500 font-mono mt-0.5">
                               01936-488304 | info@shakildigitalprinters.com
@@ -1132,7 +1164,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 {/* Switch side instructions overlay */}
                 <div className="mt-4 flex items-center space-x-2 text-xs text-slate-400 font-light select-none z-10 bg-white/40 dark:bg-slate-900/40 px-4 py-1.5 rounded-full border border-slate-200/20">
                   <RefreshCw size={12} className="text-blue-500 animate-spin-slow" />
-                  <span>Use the header buttons to switch Front & Back views</span>
+                  <span>{isEn ? "Use the header buttons to switch Front & Back views" : "সামনের ও পিছনের দিক দেখতে উপরের বোতাম ব্যবহার করুন"}</span>
                 </div>
 
               </div>
@@ -1143,7 +1175,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-2 text-slate-400 text-xs font-light">
                 <Info size={16} className="text-orange-500 animate-pulse" />
-                <span>Orders are printed on premium 30-mil high-gloss PVC with lanyards included</span>
+                <span>{isEn ? "Orders are printed on premium 30-mil high-gloss PVC with lanyards included" : "অর্ডারগুলো প্রিমিয়াম ৩০-মিল হাই-গ্লস পিভিসি এবং ফিতাসহ প্রিন্ট করা হয়"}</span>
               </div>
               
               <div className="flex items-center space-x-3 w-full sm:w-auto">
@@ -1153,7 +1185,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                   className="w-full sm:w-auto flex items-center justify-center space-x-2 py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold rounded-xl text-xs transition-all shadow-md shadow-blue-500/10 active:scale-95 animate-pulse"
                 >
                   <Sparkles size={14} />
-                  <span>Apply & Order Prints</span>
+                  <span>{t('btn.applyOrder')}</span>
                 </button>
               </div>
             </div>
@@ -1215,18 +1247,18 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <Sparkles className="text-orange-400" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-400 font-mono">Premium Customization</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-400 font-mono">{isEn ? "Premium Customization" : "প্রিমিয়াম কাস্টমাইজেশন"}</span>
           </div>
-          <h4 className="text-xl font-bold font-display">Seen something you like?</h4>
+          <h4 className="text-xl font-bold font-display">{isEn ? "Seen something you like?" : "আপনার পছন্দসই কিছু দেখেছেন?"}</h4>
           <p className="text-sm text-blue-200 font-light max-w-2xl">
-            We can replicate any layout style or design pattern tailored for your customized business specifications. Just click to order and attach your layout reference.
+            {isEn ? "We can replicate any layout style or design pattern tailored for your customized business specifications. Just click to order and attach your layout reference." : "আমরা আপনার কাস্টমাইজড বিজনেস স্পেসিফিকেশন অনুযায়ী যেকোনো লেআউট স্টাইল বা ডিজাইন প্যাটার্ন তৈরি করতে পারি। অর্ডার করতে ক্লিক করুন এবং আপনার রেফারেন্স লেআউট সংযুক্ত করুন।"}
           </p>
         </div>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-xl text-xs transition-all shrink-0"
         >
-          Place Order Custom Style
+          {isEn ? "Place Order Custom Style" : "কাস্টম স্টাইল অর্ডার করুন"}
         </button>
       </section>
 
@@ -1273,7 +1305,7 @@ Note: Please scale-to-fit for professional digital commercial flex plotter print
                 </div>
                 <div className="flex items-center space-x-2 text-slate-400 text-xs font-light">
                   <Info size={16} className="text-orange-400" />
-                  <span>Real print output captured under studio lighting</span>
+                  <span>{isEn ? "Real print output captured under studio lighting" : "স্টুডিও লাইটের নিচে ধারণকৃত বাস্তব প্রিন্ট আউটপুট"}</span>
                 </div>
               </div>
             </motion.div>

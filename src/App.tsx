@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Printer, Image as ImageIcon, FileText, ShoppingBag, Info, PhoneCall, 
-  Menu, X, Sun, Moon, Sparkles, Facebook, MessageSquare, Clock, MapPin, Search, ChevronRight, Loader2
+  Menu, X, Sun, Moon, Sparkles, Facebook, MessageSquare, Clock, MapPin, Search, ChevronRight, Loader2,
+  ShieldCheck
 } from 'lucide-react';
 
 // Import components
@@ -151,7 +152,7 @@ export default function App() {
           </nav>
 
           {/* Top Actions: Language switcher, Dark mode trigger, CTA Order now */}
-          <div className="hidden sm:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-3">
             {/* English and Bangla Mode Buttons */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 font-mono text-[10px] font-bold shrink-0 shadow-inner">
               <button
@@ -293,7 +294,7 @@ export default function App() {
                   services={services} 
                   prices={prices} 
                   prefilledParams={prefilledParams} 
-                  onOrderSuccess={(id) => handleNavigate('portal')} 
+                  onOrderSuccess={(id) => {}} 
                   onNavigate={handleNavigate}
                 />
               )}
@@ -325,7 +326,7 @@ export default function App() {
 
       {/* Footer Block */}
       <footer className="bg-slate-900 text-slate-400 border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8 print:hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Logo Brand summary */}
           <div className="space-y-4">
@@ -378,21 +379,6 @@ export default function App() {
                 <span>{t('brand.hours')}</span>
               </div>
             </div>
-          </div>
-
-          {/* Operational console access */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{t('footer.adminHeader')}</h4>
-            <p className="text-xs text-slate-400 font-light">
-              {t('footer.adminDesc')}
-            </p>
-            <button
-              onClick={() => handleNavigate('admin')}
-              className="px-4 py-2 bg-slate-800 hover:bg-orange-500 text-white font-bold text-xs rounded-xl transition-all w-full flex items-center justify-center space-x-1"
-            >
-              <span>{t('btn.operatorLogin')}</span>
-              <ChevronRight size={14} />
-            </button>
           </div>
 
         </div>

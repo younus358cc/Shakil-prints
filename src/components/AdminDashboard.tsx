@@ -6,6 +6,7 @@ import {
   PlusCircle, Edit3, X, Mail, Phone, Clock, FileDown, CheckSquare, Search, Award, AlertCircle, Printer
 } from 'lucide-react';
 import { Order, Service, PriceItem, GalleryItem, User, WebsiteSettings, DashboardStats, AppNotification } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface AdminDashboardProps {
   services: Service[];
@@ -16,6 +17,9 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ services, prices, galleryItems, onRefreshData, onNavigate }: AdminDashboardProps) {
+  const { language, t } = useLanguage();
+  const isEn = language === 'en';
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -41,7 +45,8 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
 
   // Check admin auth
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [authPasscode, setAuthPasscode] = useState('');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
   useEffect(() => {
@@ -95,23 +100,37 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
     }
   }, [isAuthorized]);
 
-  // Handle Passcode Login
-  const handlePasscodeLogin = (e: React.FormEvent) => {
+  // Handle Operator Login
+  const handleOperatorLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authPasscode === 'admin') {
-      const adminUser: User = {
-        id: 'u1',
-        name: 'Shakil Ahmed',
-        email: 'admin@shakilprinters.com',
-        phoneNumber: '01712345678',
-        role: 'admin',
-        createdAt: new Date().toISOString()
-      };
-      localStorage.setItem('shakil_user', JSON.stringify(adminUser));
-      setIsAuthorized(true);
-      setAuthError('');
-    } else {
-      setAuthError('Incorrect administrative passcode. Enter "admin" for demo testing.');
+    setActionLoading(true);
+    setAuthError('');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: authPassword })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.user.role === 'admin') {
+          localStorage.setItem('shakil_user', JSON.stringify(data.user));
+          if (data.token) {
+            localStorage.setItem('shakil_token', data.token);
+          }
+          setIsAuthorized(true);
+          setAuthError('');
+        } else {
+          setAuthError(isEn ? 'Unauthorized role. Operator/Admin account is required.' : 'অননুমোদিত অ্যাক্সেস। অপারেটর/অ্যাডমিন অ্যাকাউন্ট প্রয়োজন।');
+        }
+      } else {
+        setAuthError(data.message || (isEn ? 'Incorrect email or password.' : 'ভুল ইমেইল বা পাসওয়ার্ড।'));
+      }
+    } catch (err) {
+      console.error(err);
+      setAuthError(isEn ? 'Server communication failure.' : 'সার্ভার যোগাযোগ ত্রুটি।');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -339,9 +358,13 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
           <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-md">
             <Settings size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">Admin Security Lock</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">
+            {isEn ? "Operator Portal Login" : "অপারেটর পোর্টাল লগইন"}
+          </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Provide the administrative passcode to toggle website configs, inspect user attachments, and edit pricing tables.
+            {isEn 
+              ? "Provide operator credentials to manage orders, catalog pricing, and database statistics." 
+              : "অর্ডার পরিচালনা, ক্যাটালগ প্রাইসিং এবং ডাটাবেজ স্ট্যাটিস্টিকস নিয়ন্ত্রণ করতে অপারেটর তথ্য দিয়ে লগইন করুন।"}
           </p>
         </div>
 
@@ -352,28 +375,60 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
           </div>
         )}
 
-        <form onSubmit={handlePasscodeLogin} className="space-y-4">
+        <form onSubmit={handleOperatorLogin} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Admin Passcode</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {isEn ? "Operator Email" : "অপারেটর ইমেইল"}
+            </label>
             <input
-              type="password"
+              type="email"
               required
-              placeholder="Enter admin code"
-              value={authPasscode}
-              onChange={(e) => setAuthPasscode(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white text-sm text-center font-mono focus:outline-none"
+              placeholder="e.g. admin@shakilprinters.com"
+              value={authEmail}
+              onChange={(e) => setAuthEmail(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl text-[11px] text-slate-500 border border-slate-100 dark:border-slate-700 text-center">
-            💡 Enter <strong>"admin"</strong> to easily test dashboard controls.
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {isEn ? "Password" : "পাসওয়ার্ড"}
+            </label>
+            <input
+              type="password"
+              required
+              placeholder={isEn ? "Enter password" : "পাসওয়ার্ড লিখুন"}
+              value={authPassword}
+              onChange={(e) => setAuthPassword(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl text-[11px] text-slate-500 border border-slate-100 dark:border-slate-700 text-left space-y-1">
+            <div className="font-semibold text-slate-700 dark:text-slate-300">
+              {isEn ? "Demo Operator Credentials:" : "ডেমো অপারেটর তথ্য:"}
+            </div>
+            <div>
+              <span className="font-mono text-[10px]">Email: admin@shakilprinters.com</span>
+            </div>
+            <div>
+              <span className="font-mono text-[10px]">Password: admin</span>
+            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition-all shadow-md"
+            disabled={actionLoading}
+            className="w-full py-3 bg-blue-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2"
           >
-            Authorize Terminal
+            {actionLoading ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                <span>{isEn ? "Verifying..." : "যাচাই করা হচ্ছে..."}</span>
+              </>
+            ) : (
+              <span>{isEn ? "Sign In & Open Dashboard" : "সাইন ইন ও ড্যাশবোর্ড খুলুন"}</span>
+            )}
           </button>
         </form>
       </div>
@@ -385,23 +440,27 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
       {/* Admin Title Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="text-[10px] tracking-wider uppercase font-bold text-orange-500 font-mono bg-orange-500/10 px-2.5 py-1 rounded-full">OPERATIONAL CONSOLE</span>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white font-display mt-2">Shakil Management Hub</h1>
+          <span className="text-[10px] tracking-wider uppercase font-bold text-orange-500 font-mono bg-orange-500/10 px-2.5 py-1 rounded-full">
+            {isEn ? "OPERATIONAL CONSOLE" : "অপারেশনাল কনসোল"}
+          </span>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white font-display mt-2">
+            {isEn ? "Shakil Management Hub" : "শাকিল ম্যানেজমেন্ট হাব"}
+          </h1>
         </div>
         <div className="flex items-center space-x-3 shrink-0">
           <button
             onClick={fetchAdminData}
-            className="p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 rounded-xl transition-all"
-            title="Refresh Server Records"
+            className="p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 rounded-xl transition-all cursor-pointer"
+            title={isEn ? "Refresh Server Records" : "সার্ভার রেকর্ড রিফ্রেশ"}
           >
             <RefreshCw size={18} />
           </button>
           <button
             onClick={handleLogout}
-            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <LogOut size={14} />
-            <span>Terminate Session</span>
+            <span>{isEn ? "Terminate Session" : "লগআউট করুন"}</span>
           </button>
         </div>
       </div>
@@ -411,31 +470,41 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-2">
             <ShoppingBag className="text-blue-600" size={20} />
-            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Total Orders</h4>
+            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+              {isEn ? "Total Orders" : "মোট অর্ডার"}
+            </h4>
             <p className="text-2xl font-black font-display font-mono text-slate-800 dark:text-white">{stats.totalOrders}</p>
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-2">
             <Loader2 className="text-amber-500 animate-spin" size={20} />
-            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Pending Tasks</h4>
+            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+              {isEn ? "Pending Tasks" : "অপেক্ষমান কাজ"}
+            </h4>
             <p className="text-2xl font-black font-display font-mono text-slate-800 dark:text-white">{stats.pendingOrders}</p>
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-2">
             <CheckCircle className="text-emerald-500" size={20} />
-            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Completed Tasks</h4>
+            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+              {isEn ? "Completed Tasks" : "সম্পন্ন কাজ"}
+            </h4>
             <p className="text-2xl font-black font-display font-mono text-slate-800 dark:text-white">{stats.completedOrders}</p>
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-2">
             <Users className="text-sky-600" size={20} />
-            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Customers</h4>
+            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+              {isEn ? "Customers" : "গ্রাহক সংখ্যা"}
+            </h4>
             <p className="text-2xl font-black font-display font-mono text-slate-800 dark:text-white">{stats.totalCustomers}</p>
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-2 col-span-2 lg:col-span-1">
             <CreditCard className="text-orange-500" size={20} />
-            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Sales Revenue</h4>
+            <h4 className="text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+              {isEn ? "Sales Revenue" : "মোট বিক্রয়"}
+            </h4>
             <p className="text-2xl font-black font-display font-mono text-orange-500">৳{stats.revenue}</p>
           </div>
         </div>
@@ -447,13 +516,18 @@ export default function AdminDashboard({ services, prices, galleryItems, onRefre
           <button
             key={tab}
             onClick={() => setCurrentTab(tab)}
-            className={`py-2 px-4 text-xs font-semibold rounded-xl capitalize transition-all whitespace-nowrap ${
+            className={`py-2 px-4 text-xs font-semibold rounded-xl capitalize transition-all whitespace-nowrap cursor-pointer ${
               currentTab === tab
                 ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
             }`}
           >
-            {tab}
+            {tab === 'orders' ? (isEn ? 'Orders' : 'অর্ডারসমূহ') :
+             tab === 'services' ? (isEn ? 'Services' : 'সেবাসমূহ') :
+             tab === 'prices' ? (isEn ? 'Price List' : 'মূল্যতালিকা') :
+             tab === 'gallery' ? (isEn ? 'Gallery' : 'গ্যালারি') :
+             tab === 'users' ? (isEn ? 'Users' : 'গ্রাহক তালিকা') :
+             tab === 'settings' ? (isEn ? 'Settings' : 'সেটিংস') : tab}
           </button>
         ))}
       </div>
